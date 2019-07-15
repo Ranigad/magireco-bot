@@ -6,7 +6,7 @@ import { ICommand, ICommandArgs, ICommandResult } from '../interfaces';
 import { WikiService } from '../services/wiki';
 import { Logger } from '../services/logger';
 import { PresenceService } from '../services/presence';
-import { EmojiService } from '../services/emoji';
+import { EmojiService } from '../services/EmojiService';
 
 const CHAR_COLORS = {
   Light: 0xfdd754,

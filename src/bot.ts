@@ -10,8 +10,10 @@ import { PresenceService } from './services/presence';
 import { EnvService } from './services/env';
 import { DatabaseService } from './services/database';
 import { WikiService } from './services/wiki';
-import { EmojiService } from './services/emoji';
+import { EmojiService } from './services/EmojiService';
 import { BaseService } from './base/BaseService';
+import { ReactService } from './services/ReactService';
+import { ErrorMessageService } from './services/ErrorMessageService';
 
 export class Bot {
   // these services have to be registered first
@@ -23,6 +25,8 @@ export class Bot {
   @Inject private emojiService: EmojiService;
   @Inject private presenceService: PresenceService;
   @Inject private wikiService: WikiService;
+  @Inject private reactService: ReactService;
+  @Inject private errorMessageService: ErrorMessageService;
 
   // this service should come last
   @Inject private commandParser: CommandParser;
@@ -33,18 +37,20 @@ export class Bot {
     if (!DISCORD_TOKEN) { throw new Error('No Discord token specified!'); }
 
     const client = new Discord.Client();
-    client.login(DISCORD_TOKEN);
+    await client.login(DISCORD_TOKEN);
 
-    client.on('ready', () => {
-      this.logger.log('Initialized bot!');
-
+    client.on('ready', async () => {
       // auto-register all services
       for (const key in this) {
         const service: IService = (this[key] as unknown) as IService;
-        if (!(service instanceof BaseService)) { continue; }
+        if (!(service instanceof BaseService)) {
+          continue;
+        }
 
-        service.init(client);
+        await service.init(client);
       }
+
+      this.logger.log('Initialized bot!');
     });
 
     client.on('message', async (msg) => {
@@ -53,6 +59,7 @@ export class Bot {
       const content = msg.content;
 
       if (content.startsWith(COMMAND_PREFIX)) {
+        this.logger.log(content);
         const result: ICommandResult = await this.commandParser.handleCommand(msg);
         this.logger.logCommandResult(result);
 
