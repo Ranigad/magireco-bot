@@ -34,7 +34,7 @@ export class ErrorMessageService extends BaseService {
   }
 
   private async deleteMessage(message: Discord.Message) {
-    await message.delete(1000);
+    await message.delete(2500);
   }
 
 }

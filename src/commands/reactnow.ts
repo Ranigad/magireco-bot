@@ -26,16 +26,20 @@ export class ReactNowCommand implements ICommand {
   async execute(cmdArgs: ICommandArgs): Promise<ICommandResult> {
     const {message, args} = cmdArgs;
 
+    const commandArgs = args.split(' ');
+
     // Args should only be length 1
-    if (args.length !== 1) {
+    if (commandArgs.length !== 1) {
       // Error, number of arguments doesn't match
       await this.errorMessageService.sendErrorMessage(message.channel,
         'Sorry!  You must include only the emoji name!');
-      await message.delete(1000);
+      if (message.deletable){
+        await message.delete(1000);
+      }
       return { resultString: 'Argument error occurred', result: {success: false}};
     }
 
-    const emojiName = args[0];
+    const emojiName = commandArgs[0];
 
     let fetchedMessage: Discord.Collection<string, Message> = await message.channel
       .fetchMessages({ limit: 1, before: message.id });
@@ -47,7 +51,7 @@ export class ReactNowCommand implements ICommand {
       return { resultString: 'Could not find target message', result: {success: false}};
     }
 
-    const targetMessage = fetchedMessage[0];
+    const targetMessage = fetchedMessage.array()[0];
     const emoji = this.emojiService.getEmojiByName(emojiName);
 
     await this.reactService.tempReactToMessage(targetMessage, emoji, message);
