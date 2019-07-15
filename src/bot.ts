@@ -60,7 +60,6 @@ export class Bot {
       const content = msg.content;
 
       if (content.startsWith(COMMAND_PREFIX)) {
-        this.logger.log(content);
         const result: ICommandResult = await this.commandParser.handleCommand(msg);
         this.logger.logCommandResult(result);
 
