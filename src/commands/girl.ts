@@ -3,10 +3,10 @@ import { Inject, AutoWired, Singleton } from 'typescript-ioc';
 import * as Discord from 'discord.js';
 
 import { ICommand, ICommandArgs, ICommandResult } from '../interfaces';
-import { WikiService } from '../services/wiki';
-import { Logger } from '../services/logger';
-import { PresenceService } from '../services/presence';
-import { EmojiService } from '../services/emoji';
+import { WikiService } from '../services/WikiService';
+import { Logger } from '../services/Logger';
+import { PresenceService } from '../services/PresenceService';
+import { EmojiService } from '../services/EmojiService';
 
 const CHAR_COLORS = {
   Light: 0xfdd754,
