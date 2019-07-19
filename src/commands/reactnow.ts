@@ -40,6 +40,16 @@ export class ReactNowCommand implements ICommand {
     }
 
     const emojiName = commandArgs[0];
+    const emoji = this.emojiService.getEmojiByName(emojiName);
+
+    if (!emoji) {
+      await this.errorMessageService.sendErrorMessage(message.channel,
+        'Sorry!  Could not find that emoji!');
+      if (message.deletable) {
+        await message.delete(1000);
+      }
+      return { resultString: 'Could not find the emoji', result: {success: false}};
+    }
 
     let fetchedMessage: Discord.Collection<string, Message> = await message.channel
       .fetchMessages({ limit: 1, before: message.id });
@@ -47,14 +57,24 @@ export class ReactNowCommand implements ICommand {
       fetchedMessage.array() === undefined || fetchedMessage.array().length < 1) {
       await this.errorMessageService.sendErrorMessage(message.channel,
         'Sorry!  Could not find a message to react to!');
-      await message.delete(1000);
+      if (message.deletable) {
+        await message.delete(1000);
+      }
       return { resultString: 'Could not find target message', result: {success: false}};
     }
 
     const targetMessage = fetchedMessage.array()[0];
-    const emoji = this.emojiService.getEmojiByName(emojiName);
 
-    await this.reactService.tempReactToMessage(targetMessage, emoji, message);
+    const success = await this.reactService.tempReactToMessage(targetMessage, emoji, message);
+
+    if (success === false) {
+      await this.errorMessageService.sendErrorMessage(message.channel,
+        'Sorry!  Could not apply the reaction!');
+      if (message.deletable) {
+        await message.delete(1000);
+      }
+      return {resultString: 'Could not apply the reaction', result: {success: false}};
+    }
 
     return {};
   }

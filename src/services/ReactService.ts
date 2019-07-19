@@ -23,7 +23,7 @@ export class ReactService extends BaseService {
    * @param userCommandMessage The user command that instructed to apply the emoji.
    */
   async tempReactToMessage(targetMessage: Discord.Message, emoji: Discord.Emoji,
-                           userCommandMessage: Discord.Message) {
+                           userCommandMessage: Discord.Message): Promise<boolean> {
     try {
       let reaction = await targetMessage.react(emoji);
       if (userCommandMessage.deletable) {
