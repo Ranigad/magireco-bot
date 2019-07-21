@@ -2,7 +2,7 @@
 import test from 'ava-ts';
 import { Container } from 'typescript-ioc';
 
-import { CommandParser } from '../services/command-parser';
+import { CommandParser } from '../services/CommandParser';
 
 test.beforeEach((t) => {
   (t.context as any).commandParser = Container.get(CommandParser);

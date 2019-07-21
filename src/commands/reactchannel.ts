@@ -5,7 +5,7 @@ import { Inject, AutoWired, Singleton } from 'typescript-ioc';
 
 import { ICommand, ICommandArgs, ICommandResult } from '../interfaces';
 import { EmojiService } from '../services/EmojiService';
-import { Logger } from '../services/logger';
+import { Logger } from '../services/Logger';
 import { ReactService } from '../services/ReactService';
 import { ErrorMessageService } from '../services/ErrorMessageService';
 import { Collection, GuildChannel, Message, TextChannel } from 'discord.js';

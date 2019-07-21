@@ -6,7 +6,7 @@ import { ICommandResult, ICommand } from '../interfaces';
 import { BaseService } from '../base/BaseService';
 
 import * as Commands from '../commands';
-import { HelpService } from './help';
+import { HelpService } from './HelpService';
 
 @Singleton
 @AutoWired

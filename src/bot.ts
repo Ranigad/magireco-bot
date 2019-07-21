@@ -4,16 +4,16 @@ import { Inject } from 'typescript-ioc';
 
 import { ICommandResult, IService } from './interfaces';
 
-import { Logger } from './services/logger';
-import { CommandParser } from './services/command-parser';
-import { PresenceService } from './services/presence';
-import { EnvService } from './services/env';
-import { DatabaseService } from './services/database';
-import { WikiService } from './services/wiki';
+import { Logger } from './services/Logger';
+import { CommandParser } from './services/CommandParser';
+import { PresenceService } from './services/PresenceService';
+import { EnvService } from './services/EnvService';
+import { DatabaseService } from './services/DatabaseService';
+import { WikiService } from './services/WikiService';
 import { EmojiService } from './services/EmojiService';
-import { BaseService } from './base/BaseService';
 import { ReactService } from './services/ReactService';
 import { ErrorMessageService } from './services/ErrorMessageService';
+import { BaseService } from './base/BaseService';
 
 export class Bot {
   // these services have to be registered first
