@@ -32,7 +32,7 @@ export class ReactNowCommand implements ICommand {
       // Error, number of arguments doesn't match
       await this.errorMessageService.sendErrorMessage(message.channel,
         'Sorry!  You must include only the emoji name!');
-      if (message.deletable){
+      if (message.deletable) {
         await message.delete(1000);
       }
       return { resultString: 'Argument error occurred', result: {success: false}};
