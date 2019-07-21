@@ -10,7 +10,6 @@ import { ReactService } from '../services/ReactService';
 import { ErrorMessageService } from '../services/ErrorMessageService';
 import { Message } from 'discord.js';
 
-// Reacts to given message ID with given emoji name. Deletes after short duration.
 @Singleton
 @AutoWired
 export class ReactNowCommand implements ICommand {

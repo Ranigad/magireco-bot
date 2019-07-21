@@ -10,7 +10,6 @@ import { ReactService } from '../services/ReactService';
 import { ErrorMessageService } from '../services/ErrorMessageService';
 import { Channel, DMChannel, GroupDMChannel, Message, TextChannel } from 'discord.js';
 
-// Reacts to given message ID with given emoji name. Deletes after short duration.
 @Singleton
 @AutoWired
 export class ReactCommand implements ICommand {
@@ -18,8 +17,8 @@ export class ReactCommand implements ICommand {
   help = 'React to the message immediately above the command or react to a specific' +
     'message with a message-id\n' +
     '**Usage**\n' +
-    '\\react message-id emoji-name - reacts to a specific message\n' +
-    '\\react emoji-name - reacts to the above message\n' +
+    'react message-id emoji-name - reacts to a specific message\n' +
+    'react emoji-name - reacts to the above message\n' +
     '**Supported Servers**\n' +
     'PMMM: Magia Record\n' +
     '/r/MadokaMagica\n' +
