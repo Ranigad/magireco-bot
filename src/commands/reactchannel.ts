@@ -73,7 +73,7 @@ export class ReactChannelCommand implements ICommand {
 
     let channels: Collection<string, GuildChannel> = message.guild.channels;
 
-    if (!channels || !channels.array() || channels.array().length < 1) {
+    if (!channels || !(channels.array()) || channels.array().length < 1) {
       return this.couldNotFindTheChannel(message);
     }
 
@@ -159,8 +159,8 @@ export class ReactChannelCommand implements ICommand {
 
     let fetchedMessage: Discord.Collection<string, Message> = await message.channel
       .fetchMessages({limit: 1, before: message.id});
-    if (fetchedMessage === undefined || !(fetchedMessage instanceof Discord.Collection) ||
-      fetchedMessage.array() === undefined || fetchedMessage.array().length < 1) {
+    if (!fetchedMessage || !(fetchedMessage instanceof Discord.Collection) ||
+      !(fetchedMessage.array()) || fetchedMessage.array().length < 1) {
       await this.errorMessageService.sendErrorMessage(message.channel,
         'Sorry!  Could not find a message to react to!');
       if (message.deletable) {
