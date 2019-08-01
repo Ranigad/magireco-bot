@@ -11,6 +11,8 @@ import { EnvService } from './services/EnvService';
 import { DatabaseService } from './services/DatabaseService';
 import { WikiService } from './services/WikiService';
 import { EmojiService } from './services/EmojiService';
+import { ReactService } from './services/ReactService';
+import { ErrorMessageService } from './services/ErrorMessageService';
 import { BaseService } from './base/BaseService';
 
 export class Bot {
@@ -18,11 +20,13 @@ export class Bot {
   @Inject private logger: Logger;
   @Inject private envService: EnvService;
   @Inject private databaseService: DatabaseService;
+  @Inject private errorMessageService: ErrorMessageService;
 
   // these services can come in any particular order
   @Inject private emojiService: EmojiService;
   @Inject private presenceService: PresenceService;
   @Inject private wikiService: WikiService;
+  @Inject private reactService: ReactService;
 
   // this service should come last
   @Inject private commandParser: CommandParser;
@@ -33,18 +37,21 @@ export class Bot {
     if (!DISCORD_TOKEN) { throw new Error('No Discord token specified!'); }
 
     const client = new Discord.Client();
-    client.login(DISCORD_TOKEN);
 
-    client.on('ready', () => {
+    client.on('ready', async () => {
       this.logger.log('Initialized bot!');
 
       // auto-register all services
       for (const key in this) {
         const service: IService = (this[key] as unknown) as IService;
-        if (!(service instanceof BaseService)) { continue; }
+        if (!(service instanceof BaseService)) {
+          continue;
+        }
 
-        service.init(client);
+        await service.init(client);
       }
+
+      this.logger.log('All services registered!');
     });
 
     client.on('message', async (msg) => {
@@ -73,5 +80,8 @@ export class Bot {
 
       this.commandParser.handleEmojiRemove(reaction, user);
     });
+
+    // After everything is configured, login to the client
+    await client.login(DISCORD_TOKEN);
   }
 }

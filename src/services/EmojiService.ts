@@ -21,6 +21,10 @@ export class EmojiService extends BaseService {
     return this.emojiHash[name];
   }
 
+  public getEmojiByName(name: string): Discord.Emoji {
+    return this.client.emojis.find('name', name);
+  }
+
   public getEmojiInstance(name: string) {
     return this.emojiInstanceHash[name];
   }
