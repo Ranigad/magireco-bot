@@ -13,3 +13,5 @@ temp/*
 *.traineddata
 .nvmrc
 *.sh
+package-lock.json.*
+orm*
