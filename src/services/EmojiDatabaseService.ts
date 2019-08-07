@@ -14,7 +14,7 @@ export class EmojiDatabaseService extends BaseService {
 
   private dbclient;
   private emojiRepository;
-  private regex = /\<a?\:([\w]{2,})\:([\d]+)\>/g;
+  private emojiRegex = /\<a?\:([\w]{2,})\:([\d]+)\>/g;  // Regex to parse id and name from emoji in string
 
   public async init(client: Discord.Client) {
     super.init(client);
@@ -32,17 +32,17 @@ export class EmojiDatabaseService extends BaseService {
   }
 
   // Add emoji to the db, also add to
-  async dbadd(emojiname: string, emojiid: string, username: string, userid: string, serverid: string, messageid: string, reaction: boolean) {
-    const emoji = new Emoji();
+  async dbadd(emoji: Discord.Emoji | Discord.ReactionEmoji, user: Discord.User, message: Discord.Message, isReact: boolean) {
+    const emojiEntity = new Emoji();
 
-    emoji.emojiid = emojiid;
-    emoji.emojiname = emojiname;
-    emoji.username = username;
-    emoji.userid = userid;
-    emoji.reaction = reaction;
-    emoji.serverid = serverid;
-    emoji.messageid = messageid;
-    emoji.time = new Date().getTime();
+    emojiEntity.emojiid = emoji.id;
+    emojiEntity.emojiname = emoji.name;
+    emojiEntity.username = user.username;
+    emojiEntity.userid = user.id;
+    emojiEntity.reaction = isReact;
+    emojiEntity.serverid = message.guild.id;
+    emojiEntity.messageid = message.id;
+    emojiEntity.time = Date.now();
 
     try {
       await this.emojiRepository.save(emoji);
@@ -52,19 +52,19 @@ export class EmojiDatabaseService extends BaseService {
     }
   }
 
-  async reactionadd(emojiname: string, emojiid: string, username: string, userid: string, serverid: string, messageid: string) {
-    await this.dbadd(emojiname, emojiid, username, userid, serverid, messageid, true);
+  async reactionadd(emoji: Discord.Emoji | Discord.ReactionEmoji, user: Discord.User, message: Discord.Message) {
+    await this.dbadd(emoji, user, message, true);
   }
 
   // Delete emoji from the db, used for TTL and Reaction removal
   // Is this used for anything aside from reactions? TTL can have separate function.
-  async reactionremove(emojiname: string, userid: string, messageid: string) {
+  async reactionremove(emoji: Discord.Emoji | Discord.ReactionEmoji, user: Discord.User, message: Discord.Message) {
     try {
 
       await this.emojiRepository.delete({
-        emojiname: emojiname,
-        userid: userid,
-        messageid: messageid,
+        emojiname: emoji.name,
+        userid: user.id,
+        messageid: message.id,
         reaction: true
       });
       this.logger.log("Emoji deleted");

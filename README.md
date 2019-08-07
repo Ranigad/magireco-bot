@@ -10,6 +10,9 @@ Put these values in a [`.env`](https://www.npmjs.com/package/dotenv) file.
 ### Required
 
 * `DISCORD_TOKEN` - the Discord token for the bot.
+* `TYPEORM_CONNECTION` - sqlite
+* `TYPEORM_SYNCHRONIZE` - true
+* `TYPEORM_ENTITIES` - entity/*.ts, src/entity/*.ts
  
 ### Optional
 

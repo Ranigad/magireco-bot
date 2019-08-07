@@ -14,7 +14,7 @@ export class emojilistener implements ICommand {
   @Inject private logger: Logger;
 
   help = 'Listener for emoji data';
-  aliases = ['emoji'];
+  aliases;
 
   async execute(args: ICommandArgs): Promise<ICommandResult> {
     this.emojiDatabaseService.printEmojis();
@@ -31,7 +31,8 @@ export class emojilistener implements ICommand {
     const emoji = reaction.emoji;
     // Only add if reaction in server and custom emoji
     if (reaction.message.channel instanceof Discord.TextChannel && emoji.id) {
-      this.emojiDatabaseService.reactionadd(emoji.name, emoji.id, user.username, user.id, reaction.message.guild.id, reaction.message.id);
+      console.log(emoji.id, user.id, reaction.message.id);
+      this.emojiDatabaseService.reactionadd(emoji, user, reaction.message);
     } else {
       this.logger.error(`${emoji.name} not added`);
     }
@@ -41,7 +42,7 @@ export class emojilistener implements ICommand {
     // Only remove if reaction in server and custom emoji
     const emoji = reaction.emoji;
     if (reaction.message.channel instanceof Discord.TextChannel && emoji.id) {
-      this.emojiDatabaseService.reactionremove(emoji.name, user.id, reaction.message.id);
+      this.emojiDatabaseService.reactionremove(emoji, user, reaction.message);
     } else {
       this.logger.error(`${emoji.name} not deleted`);
     }
