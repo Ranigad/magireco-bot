@@ -8,13 +8,13 @@ import { Logger } from '../services/Logger';
 
 @Singleton
 @AutoWired
-export class emojilistener implements ICommand {
-
-  @Inject private emojiDatabaseService: EmojiDatabaseService;
-  @Inject private logger: Logger;
+export class EmojiListener implements ICommand {
 
   help = 'Listener for emoji data';
   aliases;
+
+  @Inject private emojiDatabaseService: EmojiDatabaseService;
+  @Inject private logger: Logger;
 
   async execute(args: ICommandArgs): Promise<ICommandResult> {
     this.emojiDatabaseService.printEmojis();
@@ -24,14 +24,12 @@ export class emojilistener implements ICommand {
 
   async onMessage(message: Discord.Message) {
 
-
   }
 
   async onEmojiAdd(reaction: Discord.MessageReaction, user: Discord.User) {
     const emoji = reaction.emoji;
     // Only add if reaction in server and custom emoji
     if (reaction.message.channel instanceof Discord.TextChannel && emoji.id) {
-      console.log(emoji.id, user.id, reaction.message.id);
       this.emojiDatabaseService.reactionadd(emoji, user, reaction.message);
     } else {
       this.logger.error(`${emoji.name} not added`);
