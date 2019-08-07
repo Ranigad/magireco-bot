@@ -13,6 +13,7 @@ Put these values in a [`.env`](https://www.npmjs.com/package/dotenv) file.
 * `TYPEORM_CONNECTION` - sqlite
 * `TYPEORM_SYNCHRONIZE` - true
 * `TYPEORM_ENTITIES` - entity/*.ts, src/entity/*.ts
+* `TYPEORM_DATABASE` - the path to the sqlite database, recommend putting in src/data/
  
 ### Optional
 
