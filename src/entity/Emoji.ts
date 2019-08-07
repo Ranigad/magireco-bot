@@ -16,20 +16,23 @@ export class Emoji {
   username: string;
 
   @Column()
+  userid: string;
+
+  @Column()
   reaction: boolean;
 
   @Column()
-  time: integer;
+  time: number;
+
+  //@Column()
+  //count: number;
 
   @Column()
-  count: number;
-
-  // @Column()
-  // serverid: string;
+  serverid: string;
 
   // @Column()
   // servername: string;
 
-  // @Column()
-  // messageid: string;
+  @Column()
+  messageid: string;
 }
