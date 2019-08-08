@@ -4,6 +4,7 @@ import * as Discord from 'discord.js';
 
 import { ICommand, ICommandArgs, ICommandResult } from '../interfaces';
 import { EmojiDatabaseService } from '../services/EmojiDatabaseService';
+import { EmojiService } from '../services/EmojiService';
 import { Logger } from '../services/Logger';
 
 @Singleton
@@ -13,8 +14,11 @@ export class EmojiListener implements ICommand {
   help = 'Listener for emoji data';
   aliases;
 
+  @Inject private emojiService: EmojiService;
   @Inject private emojiDatabaseService: EmojiDatabaseService;
   @Inject private logger: Logger;
+
+  private emojiRegex = /\<a?\:(?<name>[\w]{2,})\:(?<id>[\d]+)\>/g;  // Regex to parse id and name from emoji in string
 
   async execute(args: ICommandArgs): Promise<ICommandResult> {
     this.emojiDatabaseService.printEmojis();
@@ -23,7 +27,11 @@ export class EmojiListener implements ICommand {
   }
 
   async onMessage(message: Discord.Message) {
-
+    message.content.match(this.emojiRegex).forEach((emoji_string) => {
+      let emoji_name = this.emojiRegex.exec(emoji_string).groups.name; // Results in [emoji_string, name, id][1]
+      let emoji = this.EmojiService.getEmojiInstance(emoji_name);
+      this.emojiDatabaseService.dbadd(emoji, message.author, message);
+    });
   }
 
   async onEmojiAdd(reaction: Discord.MessageReaction, user: Discord.User) {

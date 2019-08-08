@@ -14,7 +14,6 @@ export class EmojiDatabaseService extends BaseService {
 
   private dbclient;
   private emojiRepository;
-  private emojiRegex = /\<a?\:([\w]{2,})\:([\d]+)\>/g;  // Regex to parse id and name from emoji in string
 
   public async init(client: Discord.Client) {
     super.init(client);
@@ -32,7 +31,7 @@ export class EmojiDatabaseService extends BaseService {
   }
 
   // Add emoji to the db, also add to
-  async dbadd(emoji: Discord.Emoji | Discord.ReactionEmoji, user: Discord.User, message: Discord.Message, isReact: boolean) {
+  async dbadd(emoji: Discord.Emoji | Discord.ReactionEmoji, user: Discord.User, message: Discord.Message, isReact = false) {
     const emojiEntity = new Emoji();
 
     emojiEntity.emojiid = emoji.id;
