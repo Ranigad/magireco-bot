@@ -12,7 +12,7 @@ import { Logger } from '../services/Logger';
 export class EmojiListener implements ICommand {
 
   help = 'Listener for emoji data';
-  aliases;
+  aliases = ['emoji'];
 
   @Inject private emojiService: EmojiService;
   @Inject private emojiDatabaseService: EmojiDatabaseService;
@@ -27,11 +27,12 @@ export class EmojiListener implements ICommand {
   }
 
   async onMessage(message: Discord.Message) {
-    message.content.match(this.emojiRegex).forEach((emoji_string) => {
-      let emoji_name = this.emojiRegex.exec(emoji_string).groups.name; // Results in [emoji_string, name, id][1]
-      let emoji = this.EmojiService.getEmojiInstance(emoji_name);
+    let results;
+    while ((results = this.emojiRegex.exec(message.content))) {
+      const emoji_name = results.groups.name;
+      const emoji = this.emojiService.getEmojiInstance(emoji_name);
       this.emojiDatabaseService.dbadd(emoji, message.author, message);
-    });
+    }
   }
 
   async onEmojiAdd(reaction: Discord.MessageReaction, user: Discord.User) {

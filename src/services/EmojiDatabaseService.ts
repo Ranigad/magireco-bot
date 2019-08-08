@@ -18,15 +18,7 @@ export class EmojiDatabaseService extends BaseService {
   public async init(client: Discord.Client) {
     super.init(client);
     // Does this work as a non async call? Constructor is not asynchronous
-    this.dbclient = await createConnection({
-      type: 'sqlite',
-      database: '../data/magireco.sqlite',  // Pass this in?
-      entities: [
-        Emoji
-      ],
-      synchronize: true,
-      logging: false
-    });
+    this.dbclient = await createConnection();
     this.emojiRepository = this.dbclient.getRepository(Emoji);
   }
 
@@ -44,8 +36,12 @@ export class EmojiDatabaseService extends BaseService {
     emojiEntity.time = Date.now();
 
     try {
-      await this.emojiRepository.save(emoji);
-      this.logger.log('Emoji added');
+      await this.emojiRepository.save(emojiEntity);
+      if (isReact) {
+        this.logger.log(`Reaction: ${emoji.name} by ${user.username} in ${message.guild.name} added.`);
+      } else {
+        this.logger.log(`Emoji: ${emoji.name} by ${user.username} in ${message.guild.name} added.`);
+      }
     } catch (e) {
       this.logger.error('Error in adding emoji to db: ', e);
     }
@@ -66,7 +62,7 @@ export class EmojiDatabaseService extends BaseService {
         messageid: message.id,
         reaction: true
       });
-      this.logger.log('Emoji deleted');
+      this.logger.log(`Reaction: ${emoji.name} by ${user.username} in ${message.guild.name} deleted.`);
     } catch (e) {
       this.logger.error('Error removing reaction: ', e);
     }
