@@ -19,14 +19,13 @@ export class DatabaseService extends BaseService {
   }
 
   public getRepository(name) {
-    if (this.database) {
-      return this.database.getRepository(name);
-    } else {
-      this.logger.log('DB Connection not initialized yet');
+    if (!this.database) {
+      this.logger.error('DB Connection not initialized yet');
     }
+    return this.database.getRepository(name);
   }
 
-  public getDatabase() {
+  get database() {
     return this.database;
   }
 }
