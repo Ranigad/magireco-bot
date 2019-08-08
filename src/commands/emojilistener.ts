@@ -27,11 +27,12 @@ export class EmojiListener implements ICommand {
   }
 
   async onMessage(message: Discord.Message) {
-    let results;
-    while ((results = this.emojiRegex.exec(message.content))) {
+    let results = this.emojiRegex.exec(message.content);
+    while (results) {
       const emoji_name = results.groups.name;
       const emoji = this.emojiService.getEmojiInstance(emoji_name);
       this.emojiDatabaseService.dbadd(emoji, message.author, message);
+      results = this.emojiRegex.exec(message.content);
     }
   }
 
