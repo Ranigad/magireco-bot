@@ -11,12 +11,14 @@ import { EnvService } from './services/EnvService';
 import { WikiService } from './services/WikiService';
 import { EmojiService } from './services/EmojiService';
 import { BaseService } from './base/BaseService';
-import { EmojiDatabaseService} from './services/EmojiDatabaseService';
+import { EmojiDatabaseService } from './services/EmojiDatabaseService';
+import { DatabaseService } from './services/DatabaseService';
 
 export class Bot {
   // these services have to be registered first
   @Inject private logger: Logger;
   @Inject private envService: EnvService;
+  @Inject private databaseService: DatabaseService;
 
   // these services can come in any particular order
   @Inject private emojiService: EmojiService;

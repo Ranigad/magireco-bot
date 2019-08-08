@@ -5,21 +5,17 @@ import { BaseService } from '../base/BaseService';
 import { Emoji } from '../entity/Emoji';
 import { createConnection } from 'typeorm';
 import { Logger } from '../services/Logger';
+import { DatabaseService } from '../services/DatabaseService';
 
 @Singleton
 @AutoWired
 export class EmojiDatabaseService extends BaseService {
 
   @Inject private logger: Logger;
-
-  private dbclient;
-  private emojiRepository;
+  @Inject private databaseService: DatabaseService;
 
   public async init(client: Discord.Client) {
     super.init(client);
-    // Does this work as a non async call? Constructor is not asynchronous
-    this.dbclient = await createConnection();
-    this.emojiRepository = this.dbclient.getRepository(Emoji);
   }
 
   // Add emoji to the db, also add to
@@ -36,7 +32,7 @@ export class EmojiDatabaseService extends BaseService {
     emojiEntity.time = Date.now();
 
     try {
-      await this.emojiRepository.save(emojiEntity);
+      await this.databaseService.getRepository(Emoji).save(emojiEntity);
       if (isReact) {
         this.logger.log(`Reaction: ${emoji.name} by ${user.username} in ${message.guild.name} added.`);
       } else {
@@ -56,7 +52,7 @@ export class EmojiDatabaseService extends BaseService {
   async reactionremove(emoji: Discord.Emoji | Discord.ReactionEmoji, user: Discord.User, message: Discord.Message) {
     try {
 
-      await this.emojiRepository.delete({
+      await this.databaseService.getRepository(Emoji).delete({
         emojiname: emoji.name,
         userid: user.id,
         messageid: message.id,
@@ -70,7 +66,7 @@ export class EmojiDatabaseService extends BaseService {
   }
 
   async printEmojis() {
-    let allEmojis = await this.emojiRepository.find();
+    let allEmojis = await this.databaseService.getRepository(Emoji).find();
     this.logger.log(allEmojis);
   }
 
