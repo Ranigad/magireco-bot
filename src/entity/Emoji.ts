@@ -24,8 +24,8 @@ export class Emoji {
   @Column()
   time: number;
 
-  //@Column()
-  //count: number;
+  // @Column()
+  // count: number;
 
   @Column()
   serverid: string;

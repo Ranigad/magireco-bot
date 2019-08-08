@@ -3,7 +3,7 @@ import * as Discord from 'discord.js';
 import { Inject, AutoWired, Singleton } from 'typescript-ioc';
 import { BaseService } from '../base/BaseService';
 import { Emoji } from '../entity/Emoji';
-import { createConnection } from "typeorm";
+import { createConnection } from 'typeorm';
 import { Logger } from '../services/Logger';
 
 @Singleton
@@ -14,62 +14,57 @@ export class EmojiDatabaseService extends BaseService {
 
   private dbclient;
   private emojiRepository;
-  private regex = /\<a?\:([\w]{2,})\:([\d]+)\>/g;
 
   public async init(client: Discord.Client) {
     super.init(client);
     // Does this work as a non async call? Constructor is not asynchronous
-    this.dbclient = await createConnection({
-      type: "sqlite",
-      database: "../data/magireco.sqlite",  // Pass this in?
-      entities: [
-        Emoji
-      ],
-      synchronize: true,
-      logging: false
-    });
+    this.dbclient = await createConnection();
     this.emojiRepository = this.dbclient.getRepository(Emoji);
   }
 
   // Add emoji to the db, also add to
-  async dbadd(emojiname: string, emojiid: string, username: string, userid: string, serverid: string, messageid: string, reaction: boolean) {
-    const emoji = new Emoji();
+  async dbadd(emoji: Discord.Emoji | Discord.ReactionEmoji, user: Discord.User, message: Discord.Message, isReact = false) {
+    const emojiEntity = new Emoji();
 
-    emoji.emojiid = emojiid;
-    emoji.emojiname = emojiname;
-    emoji.username = username;
-    emoji.userid = userid;
-    emoji.reaction = reaction;
-    emoji.serverid = serverid;
-    emoji.messageid = messageid;
-    emoji.time = new Date().getTime();
+    emojiEntity.emojiid = emoji.id;
+    emojiEntity.emojiname = emoji.name;
+    emojiEntity.username = user.username;
+    emojiEntity.userid = user.id;
+    emojiEntity.reaction = isReact;
+    emojiEntity.serverid = message.guild.id;
+    emojiEntity.messageid = message.id;
+    emojiEntity.time = Date.now();
 
     try {
-      await this.emojiRepository.save(emoji);
-      this.logger.log("Emoji added");
-    } catch(e) {
-      this.logger.error("Error in adding emoji to db: ", e);
+      await this.emojiRepository.save(emojiEntity);
+      if (isReact) {
+        this.logger.log(`Reaction: ${emoji.name} by ${user.username} in ${message.guild.name} added.`);
+      } else {
+        this.logger.log(`Emoji: ${emoji.name} by ${user.username} in ${message.guild.name} added.`);
+      }
+    } catch (e) {
+      this.logger.error('Error in adding emoji to db: ', e);
     }
   }
 
-  async reactionadd(emojiname: string, emojiid: string, username: string, userid: string, serverid: string, messageid: string) {
-    await this.dbadd(emojiname, emojiid, username, userid, serverid, messageid, true);
+  async reactionadd(emoji: Discord.Emoji | Discord.ReactionEmoji, user: Discord.User, message: Discord.Message) {
+    await this.dbadd(emoji, user, message, true);
   }
 
   // Delete emoji from the db, used for TTL and Reaction removal
   // Is this used for anything aside from reactions? TTL can have separate function.
-  async reactionremove(emojiname: string, userid: string, messageid: string) {
+  async reactionremove(emoji: Discord.Emoji | Discord.ReactionEmoji, user: Discord.User, message: Discord.Message) {
     try {
 
       await this.emojiRepository.delete({
-        emojiname: emojiname,
-        userid: userid,
-        messageid: messageid,
+        emojiname: emoji.name,
+        userid: user.id,
+        messageid: message.id,
         reaction: true
       });
-      this.logger.log("Emoji deleted");
+      this.logger.log(`Reaction: ${emoji.name} by ${user.username} in ${message.guild.name} deleted.`);
     } catch (e) {
-      this.logger.error("Error removing reaction: ", e);
+      this.logger.error('Error removing reaction: ', e);
     }
 
   }
@@ -83,36 +78,30 @@ export class EmojiDatabaseService extends BaseService {
   // Get server data
   async serverLookup() {
 
-
   }
 
   // get user data
   async userLookup() {
-
 
   }
 
   // get emoji data
   async emojiLookup() {
 
-
   }
 
   // get reaction data
   async reactionLookup() {
-
 
   }
 
   // get reaction by user data
   async reactionUserLookup() {
 
-
   }
 
   // getEmojiCount
   async constructEmojiCount() {
-
 
   }
 }

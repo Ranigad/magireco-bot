@@ -61,4 +61,3 @@ export interface IGirlData {
   magia2?: IMagia;
   doppel?: IDoppel;
 }
-
