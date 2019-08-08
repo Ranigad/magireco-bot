@@ -12,6 +12,10 @@ export class DatabaseService extends BaseService {
 
   private _database;
 
+  get database() {
+    return this._database;
+  }
+
   public async init(client) {
     super.init(client);
 
@@ -25,7 +29,4 @@ export class DatabaseService extends BaseService {
     return this._database.getRepository(name);
   }
 
-  get database() {
-    return this._database;
-  }
 }
