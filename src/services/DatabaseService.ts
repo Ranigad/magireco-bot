@@ -10,22 +10,22 @@ export class DatabaseService extends BaseService {
 
   @Inject private logger: Logger;
 
-  private database;
+  private _database;
 
   public async init(client) {
     super.init(client);
 
-    this.database = await createConnection();
+    this._database = await createConnection();
   }
 
   public getRepository(name) {
     if (!this.database) {
       this.logger.error('DB Connection not initialized yet');
     }
-    return this.database.getRepository(name);
+    return this._database.getRepository(name);
   }
 
   get database() {
-    return this.database;
+    return this._database;
   }
 }
