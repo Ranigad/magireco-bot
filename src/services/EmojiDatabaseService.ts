@@ -72,28 +72,67 @@ export class EmojiDatabaseService extends BaseService {
 
   // Lookup methods. Must include time frame.
   // Get server data
-  async serverLookup() {
-
+  async serverLookup(serverid: string) {
+    return await this.databaseService.getRepository(Emoji)
+      .createQueryBuilder("Emoji")
+      .select("emoji.emojiname")
+      .addSelect("emoji.emojiid")
+      .addSelect("COUNT(*) AS count")
+      .where(`emoji.serverid = ${serverid}`)
+      .groupBy("emoji.emojiname")
+      .getRawMany();
   }
 
   // get user data
-  async userLookup() {
-
+  async userLookup(userid: string, serverid: string) {
+    return await this.databaseService.getRepository(Emoji)
+      .createQueryBuilder("Emoji")
+      .select("emoji.emojiname")
+      .addSelect("emoji.emojiid")
+      .addSelect("COUNT (*) AS count")
+      .where(`emoji.userid = ${userid}`)
+      .andWhere(`emoji.serverid = ${serverid}`)
+      .groupBy("emoji.emojiname")
+      .getRawMany();
   }
 
   // get emoji data
-  async emojiLookup() {
-
+  async emojiLookup(emojiname: string, serverid: string) {
+    return await this.databaseService.getRepository(Emoji)
+      .createQueryBuilder("Emoji")
+      .select("emoji.username")
+      .addSelect("COUNT (*) AS count")
+      .where(`emoji.emojiname = '${emojiname}'`)
+      .andWhere(`emoji.serverid = ${serverid}`)
+      .groupBy("emoji.userid")
+      .getRawMany();
   }
 
   // get reaction data
-  async reactionLookup() {
-
+  async reactionLookup(serverid: string) {
+    return await this.databaseService.getRepository(Emoji)
+      .createQueryBuilder("Emoji")
+      .select("emoji.emojiname")
+      .addSelect("emoji.emojiid")
+      .addSelect("COUNT(*) AS count")
+      .where(`emoji.serverid = ${serverid}`)
+      .andWhere(`emoji.reaction = true`)
+      .groupBy("emoji.emojiname")
+      .getRawMany();
   }
 
   // get reaction by user data
-  async reactionUserLookup() {
-
+  async reactionUserLookup(serverid: string, userid: string) {
+    return await this.databaseService.getRepository(Emoji)
+      .createQueryBuilder("Emoji")
+      .select("emoji.emojiname")
+      .addSelect("emoji.emojiid")
+      .addSelect("COUNT (*) AS count")
+      .where(`emoji.userid = ${userid}`)
+      .andWhere(`emoji.serverid = ${serverid}`)
+      .andWhere('emoji.reaction = true')
+      .groupBy("emoji.emojiname")
+      .getRawMany();
   }
 
   // getEmojiCount
