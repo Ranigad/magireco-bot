@@ -12,7 +12,7 @@ import { Logger } from '../services/Logger';
 export class EmojiListener implements ICommand {
 
   help = 'Listener for emoji data';
-  aliases = ['emoji'];
+  aliases = [];
 
   @Inject private emojiService: EmojiService;
   @Inject private emojiDatabaseService: EmojiDatabaseService;
