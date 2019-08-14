@@ -80,6 +80,7 @@ export class EmojiDatabaseService extends BaseService {
       .addSelect('COUNT(*) AS count')
       .where(`emoji.serverid = ${serverid}`)
       .groupBy('emoji.emojiname')
+      .orderBy('count', 'DESC')
       .getRawMany();
   }
 
@@ -93,6 +94,7 @@ export class EmojiDatabaseService extends BaseService {
       .where(`emoji.userid = ${userid}`)
       .andWhere(`emoji.serverid = ${serverid}`)
       .groupBy('emoji.emojiname')
+      .orderBy('count', 'DESC')
       .getRawMany();
   }
 
@@ -105,6 +107,7 @@ export class EmojiDatabaseService extends BaseService {
       .where(`emoji.emojiname = '${emojiname}'`)
       .andWhere(`emoji.serverid = ${serverid}`)
       .groupBy('emoji.userid')
+      .orderBy('count', 'DESC')
       .getRawMany();
   }
 
@@ -118,6 +121,7 @@ export class EmojiDatabaseService extends BaseService {
       .where(`emoji.serverid = ${serverid}`)
       .andWhere(`emoji.reaction = true`)
       .groupBy('emoji.emojiname')
+      .orderBy('count', 'DESC')
       .getRawMany();
   }
 
@@ -132,6 +136,7 @@ export class EmojiDatabaseService extends BaseService {
       .andWhere(`emoji.serverid = ${serverid}`)
       .andWhere('emoji.reaction = true')
       .groupBy('emoji.emojiname')
+      .orderBy('count', 'DESC')
       .getRawMany();
   }
 
