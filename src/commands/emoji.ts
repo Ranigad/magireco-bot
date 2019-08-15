@@ -22,73 +22,46 @@ export class EmojiCommand implements ICommand {
     const { message } = cmdArgs;
     const args = cmdArgs.args.split(' ');
 
-    if (args) {
-        const query_type = args[0];
+    // TODO: Fix this args check
+    const query_type = args[0];
+    let result = [];
+    const isReaction = ['r', 're', 'ru'].includes(query_type) || query_type.includes('reaction');
 
-        switch (query_type) {
-            case 'user':
-            case 'u': {
-                // TODO: Lookup by user when we have db mapping
-                if (args.length === 2) {
-                    this.checkParamCount(args, 2, message);
-                } else if (args.length === 1) {
-                    this.checkParamCount(args, 1, message);
-                    this.logger.log(await this.emojiDatabaseService.userLookup(message.author.id, message.guild.id));
-                }
-                break;
-            }
+    if (args.length === 1 && ['user', 'u', 'reactionuser', 'reactionsuser', 'ru', 'r', 'reaction', 'reactions'].includes(query_type)) {
+        args.push(message.author.id);
+    }
+    if (args.length !== 2 && !['s', 'server', ''].includes(query_type)) {
+        // incorrect format
+        this.logger.log('Incorrect format');
+        return;
+    }
 
-            case 'server':
-            case 's':
-            case '': {
-                this.logger.log(await this.emojiDatabaseService.serverLookup(message.guild.id));
-                break;
-            }
+    switch (query_type) {
+        case 'user': case 'u': case 'ru': case 'reactionuser': case 'reactionsuser': {
+            // TODO: Validate username input
+            // result =
+            this.logger.log(await this.emojiDatabaseService.userLookup(args[1], message.guild.id, isReaction));
+            break;
+        }
 
-            case 'reactions':
-            case 'reaction':
-            case 'ru':
-            case 'r': {
-                // Reactions only
-                if (args.includes('user') || query_type === 'ru') {
-                    // Check for correct number of parameters + get userid
-                    this.logger.log(await this.emojiDatabaseService.reactionLookup(message.guild.id));
-                } else {
-                    this.logger.log(await this.emojiDatabaseService.reactionLookup(message.guild.id));
-                }
-            }
+        case 'emoji': case 'e': case 're': case 'reactionemoji': case 'reactionsemoji': {
+            // result =
+            this.logger.log(await this.emojiDatabaseService.emojiLookup(args[1], message.guild.id, isReaction));
+            break;
+        }
 
-            case 'emoji':
-            case 'e':
-            default: {
-                // Shift required parameters down by one if default emoji command
-                let required_params = 1;
-                if (query_type === 'e' || query_type === 'emoji') {
-                    required_params = 2;
-                }
+        case 'server': case 's': case '': case 'reactions': case 'reaction': case 'r': {
+            // result =
+            this.logger.log(await this.emojiDatabaseService.serverLookup(message.guild.id, isReaction));
+            break;
+        }
 
-                if (args.length === required_params - 1) {
-                    this.logger.log('Emoji name required.');
-                } else if (args.length >= required_params + 1) {
-                    this.logger.log('Too many arguments provided.');
-                } else {
-                    this.logger.log(await this.emojiDatabaseService.emojiLookup(args[required_params - 1], message.guild.id));
-                }
-                break;
-            }
+        default: {
+            this.logger.log('Invalid option');
+            // Invalid option
+            break;
         }
     }
     return {};
-  }
-
-  async checkParamCount(args: string[], required_params: number, message: Discord.Message): string {
-    // Check length of array against required params.
-    if (args.length < required_params) {
-        // Missing parameter
-    } else if (args.length > required_params) {
-        // Too many parameters
-    } else {
-        // Just right
-    }
   }
 }
