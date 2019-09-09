@@ -84,13 +84,13 @@ export class EmojiCommand implements ICommand {
   private async formatEmojiData(emoji) {
     this.logger.log(emoji);
     let valueList = [];
-    let value;
+    let val;
     while (emoji.length) {
         if (emoji.length === 1) {
             valueList.push({
                name: `${emoji[0].username || this.emojiService.getEmojiInstance(emoji[0].emojiname)}`,
                value: `${emoji[0].count}`
-            })
+            });
             emoji.pop();
         } else if (emoji.length === 2) {
             valueList.push({
@@ -101,13 +101,17 @@ export class EmojiCommand implements ICommand {
             emoji.splice(0, 2);
         } else {
             if (emoji.length === 3) {
-                value = `${emoji[2].username || this.emojiService.getEmojiInstance(emoji[2].emojiname)}: ${emoji[2].count}`;
+                val = `${emoji[2].username || this.emojiService.getEmojiInstance(emoji[2].emojiname)}: ${emoji[2].count}`;
             } else {
-                value = `${emoji[2].username || this.emojiService.getEmojiInstance(emoji[2].emojiname)}: ${emoji[2].count} || ${emoji[3].username || this.emojiService.getEmojiInstance(emoji[3].emojiname)}: ${emoji[3].count}`;
+                val = `${emoji[2].username || this.emojiService.getEmojiInstance(emoji[2].emojiname)}: \
+                ${emoji[2].count} || ${emoji[3].username || this.emojiService.getEmojiInstance(emoji[3].emojiname)}: \
+                ${emoji[3].count}`;
             }
             valueList.push({
-                name: `${emoji[0].username || this.emojiService.getEmojiInstance(emoji[0].emojiname)}: ${emoji[0].count} || ${emoji[1].username || this.emojiService.getEmojiInstance(emoji[1].emojiname)}: ${emoji[1].count}`,
-                value: value,
+                name: `${emoji[0].username || this.emojiService.getEmojiInstance(emoji[0].emojiname)}: \
+                ${emoji[0].count} || ${emoji[1].username || this.emojiService.getEmojiInstance(emoji[1].emojiname)}: \
+                ${emoji[1].count}`,
+                value: val,
                 inline: true
             });
         }
