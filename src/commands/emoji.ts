@@ -148,7 +148,7 @@ ${emoji[1].count}`,
 
   private hasTime(args) {
     // const timeRegex = /^([0-9]+)(s|m|w|h|d|y|mo)$/gm;
-    return this.timeRegex.test(args[args.length-1]);
+    return this.timeRegex.test(args[args.length - 1]);
   }
 
   private convertToSeconds(time) {
