@@ -72,15 +72,16 @@ export class EmojiDatabaseService extends BaseService {
 
   // Lookup methods. Must include time frame.
   // Get server data
-  async serverLookup(serverid: string, reaction = false) {
+  async serverLookup(serverid: string, time: number, reaction = false) {
     let query = this.databaseService.getRepository(Emoji)
       .createQueryBuilder('Emoji')
       .select('emoji.emojiname')
       .addSelect('emoji.emojiid')
       .addSelect('COUNT(*) AS count')
-      .where(`emoji.serverid = ${serverid}`)
+      .where(`emoji.serverid = :serverid`, { serverid })
+      .andWhere(`emoji.time > :time`, { time })
       .groupBy('emoji.emojiname')
-      .orderBy('count', 'ASC');
+      .orderBy('count', 'DESC');
 
     if (reaction) {
         query.andWhere('emoji.reaction = true');
@@ -90,16 +91,17 @@ export class EmojiDatabaseService extends BaseService {
   }
 
   // get user data
-  async userLookup(userid: string, serverid: string, reaction = false) {
+  async userLookup(userid: string, serverid: string, time: number, reaction = false) {
     let query = this.databaseService.getRepository(Emoji)
       .createQueryBuilder('Emoji')
       .select('emoji.emojiname')
       .addSelect('emoji.emojiid')
       .addSelect('COUNT (*) AS count')
-      .where(`emoji.userid = ${userid}`)
-      .andWhere(`emoji.serverid = ${serverid}`)
+      .where(`emoji.userid = :userid`, { userid })
+      .andWhere(`emoji.serverid = :serverid`, { serverid })
+      .andWhere(`emoji.time > :time`, { time })
       .groupBy('emoji.emojiname')
-      .orderBy('count', 'ASC');
+      .orderBy('count', 'DESC');
 
     if (reaction) {
         query.andWhere('emoji.reaction = true');
@@ -109,15 +111,16 @@ export class EmojiDatabaseService extends BaseService {
   }
 
   // get emoji data
-  async emojiLookup(emojiname: string, serverid: string, reaction = false) {
+  async emojiLookup(emojiname: string, serverid: string, time: number, reaction = false) {
     let query = this.databaseService.getRepository(Emoji)
       .createQueryBuilder('Emoji')
       .select('emoji.username')
       .addSelect('COUNT (*) AS count')
-      .where(`emoji.emojiname = '${emojiname}'`)
-      .andWhere(`emoji.serverid = ${serverid}`)
+      .where(`emoji.emojiname = :emojiname`, { emojiname })
+      .andWhere(`emoji.serverid = :serverid`, { serverid })
+      .andWhere(`emoji.time > :time`, { time })
       .groupBy('emoji.userid')
-      .orderBy('count', 'ASC');
+      .orderBy('count', 'DESC');
 
     if (reaction) {
         query.andWhere('emoji.reaction = true');

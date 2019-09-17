@@ -6,6 +6,7 @@ import { ICommand, ICommandArgs, ICommandResult } from '../interfaces';
 import { Logger } from '../services/Logger';
 import { EmojiService } from '../services/EmojiService';
 import { EmojiDatabaseService } from '../services/EmojiDatabaseService';
+import * as Pagination from 'discord.js-pagination';
 
 @Singleton
 @AutoWired
@@ -13,6 +14,7 @@ export class EmojiCommand implements ICommand {
 
   help = 'Get Emoji usage data by server, user, or emoji';
   aliases = ['emoji', 'e'];
+  private timeRegex = new RegExp('^([0-9]+)(s|m|w|h|d|y|mo)$');
 
   @Inject private logger: Logger;
   @Inject private emojiService: EmojiService;
@@ -21,16 +23,25 @@ export class EmojiCommand implements ICommand {
   async execute(cmdArgs: ICommandArgs): Promise<ICommandResult> {
     const { message } = cmdArgs;
     const args = cmdArgs.args.split(' ');
-    this.sendEmojiData(['a', 'b', 'c'], message);
-    return;
+
     // TODO: Fix this args check
-    const queryType = args[0];
+    let queryType = args[0];
     let result = [];
+    let time = 0;
+
+    // Check for time
+    if (args.length && this.hasTime(args)) {
+        let timeVal = args.pop();
+        queryType = queryType.replace(timeVal, '');
+        time = this.convertToSeconds(timeVal);
+    }
+
     const isReaction = ['r', 're', 'ru'].includes(queryType) || queryType.includes('reaction');
 
     if (args.length === 1 && ['user', 'u', 'reactionuser', 'reactionsuser', 'ru', 'r', 'reaction', 'reactions'].includes(queryType)) {
         args.push(message.author.id);
     }
+
     if (args.length !== 2 && !['s', 'server', ''].includes(queryType)) {
         // incorrect format
         this.logger.log('Incorrect format');
@@ -39,20 +50,23 @@ export class EmojiCommand implements ICommand {
 
     switch (queryType) {
         case 'user': case 'u': case 'ru': case 'reactionuser': case 'reactionsuser': {
-            // TODO: Validate username input
-            result = await this.emojiDatabaseService.userLookup(args[1], message.guild.id, isReaction);
+            // TODO: Validate username input [args[1] into username]
+            this.logger.log('User lookup');
+            result = await this.emojiDatabaseService.userLookup(args[1], message.guild.id, time, isReaction);
             // this.logger.log(await this.emojiDatabaseService.userLookup(args[1], message.guild.id, isReaction));
             break;
         }
 
         case 'emoji': case 'e': case 're': case 'reactionemoji': case 'reactionsemoji': {
-            result = await this.emojiDatabaseService.emojiLookup(args[1], message.guild.id, isReaction);
+            this.logger.log('Emoji lookup');
+            result = await this.emojiDatabaseService.emojiLookup(args[1], message.guild.id, time, isReaction);
             // this.logger.log(await this.emojiDatabaseService.emojiLookup(args[1], message.guild.id, isReaction));
             break;
         }
 
         case 'server': case 's': case '': case 'reactions': case 'reaction': case 'r': {
-            result = await this.emojiDatabaseService.serverLookup(message.guild.id, isReaction);
+            this.logger.log('Server lookup');
+            result = await this.emojiDatabaseService.serverLookup(message.guild.id, time, isReaction);
             // this.logger.log(await this.emojiDatabaseService.serverLookup(message.guild.id, isReaction));
             break;
         }
@@ -63,28 +77,27 @@ export class EmojiCommand implements ICommand {
             break;
         }
     }
-    this.logger.log(result);
-    let formatResult = await this.formatEmojiData(result);
-    this.logger.log(formatResult);
-    message.channel.send(formatResult[0]);
+
+    let formatResult = await this.formatEmojiData(result, queryType);
+
+    if (formatResult.length) {
+        this.paginateEmojiData(message, formatResult);
+    } else {
+        message.channel.send('No data found for specified query');
+    }
+
     return {};
   }
 
-  private async sendEmojiData(formattedResults, message) {
-        let channel = message.channel;
-        let index = 0;
-        const filter = (reaction, user) => reaction.emoji.name === '➡' || reaction.emoji.name === '⬅' && !user.bot;
-        channel.send(formattedResults[index]);
+  private paginateEmojiData(message, formattedResults) {
+    const embed = Pagination(message, formattedResults);
   }
 
-  private async editEmojiData(formattedResults, message, index) {
-        return;
-    }
-
-  private async formatEmojiData(emoji) {
-    this.logger.log(emoji);
+  private async formatEmojiData(emoji, queryType) {
+    // TODO: use queryType to determine what to display
     let valueList = [];
-    let val;
+    let value;
+
     while (emoji.length) {
         if (emoji.length === 1) {
             valueList.push({
@@ -101,17 +114,17 @@ export class EmojiCommand implements ICommand {
             emoji.splice(0, 2);
         } else {
             if (emoji.length === 3) {
-                val = `${emoji[2].username || this.emojiService.getEmojiInstance(emoji[2].emojiname)}: ${emoji[2].count}`;
+                value = `${emoji[2].username || this.emojiService.getEmojiInstance(emoji[2].emojiname)}: ${emoji[2].count}`;
             } else {
-                val = `${emoji[2].username || this.emojiService.getEmojiInstance(emoji[2].emojiname)}: \
-                ${emoji[2].count} || ${emoji[3].username || this.emojiService.getEmojiInstance(emoji[3].emojiname)}: \
-                ${emoji[3].count}`;
+                value = `${emoji[2].username || this.emojiService.getEmojiInstance(emoji[2].emojiname)}: \
+${emoji[2].count} || ${emoji[3].username || this.emojiService.getEmojiInstance(emoji[3].emojiname)}: \
+${emoji[3].count}`;
             }
             valueList.push({
                 name: `${emoji[0].username || this.emojiService.getEmojiInstance(emoji[0].emojiname)}: \
-                ${emoji[0].count} || ${emoji[1].username || this.emojiService.getEmojiInstance(emoji[1].emojiname)}: \
-                ${emoji[1].count}`,
-                value: val,
+${emoji[0].count} || ${emoji[1].username || this.emojiService.getEmojiInstance(emoji[1].emojiname)}: \
+${emoji[1].count}`,
+                value,
                 inline: true
             });
         }
@@ -128,10 +141,38 @@ export class EmojiCommand implements ICommand {
   }
 
   private makeEmbedFromField(field): {} {
-    return {
-        embed : {
-            fields : field
-        }
-    };
+    const embed = new Discord.RichEmbed();
+    embed.fields = field;
+    return embed;
+  }
+
+  private hasTime(args) {
+    // const timeRegex = /^([0-9]+)(s|m|w|h|d|y|mo)$/gm;
+    return this.timeRegex.test(args[args.length-1]);
+  }
+
+  private convertToSeconds(time) {
+    const [ timeArg, q, key ] = this.timeRegex.exec(time);
+    const quantity = parseInt(q, 10);
+    let t = new Date();
+
+    switch (key) {
+        case 's':
+            return t.setSeconds(t.getSeconds() - quantity);
+        case 'm':
+            return t.setMinutes(t.getMinutes() - quantity);
+        case 'h':
+            return t.setHours(t.getHours() - quantity);
+        case 'd':
+            return t.setDate(t.getDate() - quantity);
+        case 'w':
+            return t.setDate(t.getDate() - (7 * quantity));
+        case 'mo':
+            return t.setMonth(t.getMonth() - quantity);
+        case 'y':
+            return t.setFullYear(t.getFullYear() - quantity);
+        default:
+            return 0;
+    }
   }
 }
