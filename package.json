@@ -27,6 +27,7 @@
     "discord.js-pagination": "^1.0.2",
     "fuzzyset.js": "0.0.8",
     "sqlite3": "^4.1.0",
+    "ts-node": "^8.4.1",
     "typeorm": "^0.2.19",
     "typescript-ioc": "^1.2.5",
     "x-ray": "^2.3.4"
@@ -36,7 +37,6 @@
     "ava-ts": "^0.25.2",
     "dotenv": "^8.1.0",
     "nodemon": "^1.19.2",
-    "ts-node": "^8.4.1",
     "tslint": "^5.20.0",
     "typescript": "^3.6.3"
   }
