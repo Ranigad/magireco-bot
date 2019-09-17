@@ -7,7 +7,7 @@
     "node": "10.11.0"
   },
   "scripts": {
-    "start": "nodemon --exec \"ts-node \"-- \"src/index.ts\"",
+    "start": "ts-node -- src/index.ts",
     "test:lint": "tslint --project .",
     "test:unit": "ava-ts src/test/**.test.ts",
     "test": "npm run test:lint && npm run test:unit"
