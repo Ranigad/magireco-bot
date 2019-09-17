@@ -8,10 +8,11 @@ import { Logger } from './services/Logger';
 import { CommandParser } from './services/CommandParser';
 import { PresenceService } from './services/PresenceService';
 import { EnvService } from './services/EnvService';
-import { DatabaseService } from './services/DatabaseService';
 import { WikiService } from './services/WikiService';
 import { EmojiService } from './services/EmojiService';
 import { BaseService } from './base/BaseService';
+import { EmojiDatabaseService } from './services/EmojiDatabaseService';
+import { DatabaseService } from './services/DatabaseService';
 
 export class Bot {
   // these services have to be registered first
@@ -23,6 +24,7 @@ export class Bot {
   @Inject private emojiService: EmojiService;
   @Inject private presenceService: PresenceService;
   @Inject private wikiService: WikiService;
+  @Inject private emojiDatabaseService: EmojiDatabaseService;
 
   // this service should come last
   @Inject private commandParser: CommandParser;
