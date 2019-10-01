@@ -179,8 +179,8 @@ ${emoji[1].count}`,
             t.setFullYear(t.getFullYear() - quantity);
             break;
         default:
-            return new Date(0);
+            return 0;
     }
-    return t / 1000;
+    return t.getTime() / 1000;
   }
 }
