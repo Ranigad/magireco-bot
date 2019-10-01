@@ -27,7 +27,7 @@ export class EmojiCommand implements ICommand {
     // TODO: Fix this args check
     let queryType = args[0];
     let result = [];
-    let time = new Date();
+    let time = 0;
 
     // Check for time
     if (args.length && this.hasTime(args)) {
