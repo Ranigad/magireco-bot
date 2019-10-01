@@ -29,7 +29,7 @@ export class EmojiDatabaseService extends BaseService {
     emojiEntity.reaction = isReact;
     emojiEntity.serverid = message.guild.id;
     emojiEntity.messageid = message.id;
-    emojiEntity.time = Date.now();
+    emojiEntity.time = Math.floor(Date.now() / 1000);
 
     try {
       await this.databaseService.getRepository(Emoji).save(emojiEntity);

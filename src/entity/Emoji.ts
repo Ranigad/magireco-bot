@@ -22,7 +22,7 @@ export class Emoji {
   reaction: boolean;
 
   @Column()
-  time: timestamp;
+  time: number;
 
   // @Column()
   // count: number;

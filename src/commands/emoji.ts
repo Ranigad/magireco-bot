@@ -27,7 +27,7 @@ export class EmojiCommand implements ICommand {
     // TODO: Fix this args check
     let queryType = args[0];
     let result = [];
-    let time = 0;
+    let time = new Date();
 
     // Check for time
     if (args.length && this.hasTime(args)) {
@@ -158,21 +158,29 @@ ${emoji[1].count}`,
 
     switch (key) {
         case 's':
-            return t.setSeconds(t.getSeconds() - quantity);
+            t.setSeconds(t.getSeconds() - quantity);
+            break;
         case 'm':
-            return t.setMinutes(t.getMinutes() - quantity);
+            t.setMinutes(t.getMinutes() - quantity);
+            break;
         case 'h':
-            return t.setHours(t.getHours() - quantity);
+            t.setHours(t.getHours() - quantity);
+            break;
         case 'd':
-            return t.setDate(t.getDate() - quantity);
+            t.setDate(t.getDate() - quantity);
+            break;
         case 'w':
-            return t.setDate(t.getDate() - (7 * quantity));
+            t.setDate(t.getDate() - (7 * quantity));
+            break;
         case 'mo':
-            return t.setMonth(t.getMonth() - quantity);
+            t.setMonth(t.getMonth() - quantity);
+            break;
         case 'y':
-            return t.setFullYear(t.getFullYear() - quantity);
+            t.setFullYear(t.getFullYear() - quantity);
+            break;
         default:
-            return 0;
+            return new Date(0);
     }
+    return t / 1000;
   }
 }
