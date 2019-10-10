@@ -3,7 +3,7 @@ import * as Discord from 'discord.js';
 import { Inject, AutoWired, Singleton } from 'typescript-ioc';
 import { BaseService } from '../base/BaseService';
 import { Emoji } from '../entity/Emoji';
-import { createConnection } from 'typeorm';
+import { createConnection, getConnection } from 'typeorm';
 import { Logger } from '../services/Logger';
 import { DatabaseService } from '../services/DatabaseService';
 
@@ -73,11 +73,12 @@ export class EmojiDatabaseService extends BaseService {
   // Lookup methods. Must include time frame.
   // Get server data
   async serverLookup(serverid: string, time: number, reaction = false) {
-    let query = this.databaseService.getRepository(Emoji)
-      .createQueryBuilder('Emoji')
-      .select('emoji.emojiname')
-      .addSelect('emoji.emojiid')
+    let query = await getConnection() // this.databaseService.getRepository(Emoji)
+      .createQueryBuilder()
+      .select('emoji.emojiname AS emojiname')
+      // .addSelect('emoji.emojiid AS emojiid')
       .addSelect('COUNT(*) AS count')
+      .from(Emoji, 'emoji')
       .where(`emoji.serverid = :serverid`, { serverid })
       .andWhere(`emoji.time > :time`, { time })
       .groupBy('emoji.emojiname')
@@ -92,11 +93,12 @@ export class EmojiDatabaseService extends BaseService {
 
   // get user data
   async userLookup(userid: string, serverid: string, time: number, reaction = false) {
-    let query = this.databaseService.getRepository(Emoji)
-      .createQueryBuilder('Emoji')
+    let query = await getConnection() // this.databaseService.getRepository(Emoji)
+      .createQueryBuilder()
       .select('emoji.emojiname')
-      .addSelect('emoji.emojiid')
+      // .addSelect('emoji.emojiid')
       .addSelect('COUNT (*) AS count')
+      .from(Emoji, 'emoji')
       .where(`emoji.userid = :userid`, { userid })
       .andWhere(`emoji.serverid = :serverid`, { serverid })
       .andWhere(`emoji.time > :time`, { time })
@@ -112,10 +114,11 @@ export class EmojiDatabaseService extends BaseService {
 
   // get emoji data
   async emojiLookup(emojiname: string, serverid: string, time: number, reaction = false) {
-    let query = this.databaseService.getRepository(Emoji)
-      .createQueryBuilder('Emoji')
+    let query = await getConnection() // this.databaseService.getRepository(Emoji)
+      .createQueryBuilder()
       .select('emoji.username')
       .addSelect('COUNT (*) AS count')
+      .from(Emoji, 'emoji')
       .where(`emoji.emojiname = :emojiname`, { emojiname })
       .andWhere(`emoji.serverid = :serverid`, { serverid })
       .andWhere(`emoji.time > :time`, { time })
@@ -129,39 +132,28 @@ export class EmojiDatabaseService extends BaseService {
     return await query.getRawMany();
   }
 
-  // get reaction data
-  /*async reactionLookup(serverid: string) {
-    return await this.databaseService.getRepository(Emoji)
-      .createQueryBuilder('Emoji')
+  // getEmojiCount
+  /* printQuery() {
+    const [ serverid, time, reaction ] = [ 0, 0, false ];
+    let query = this.databaseService.getRepository(Emoji)
+      .createQueryBuilder('emoji')
       .select('emoji.emojiname')
       .addSelect('emoji.emojiid')
       .addSelect('COUNT(*) AS count')
-      .where(`emoji.serverid = ${serverid}`)
-      .andWhere(`emoji.reaction = true`)
+      .from(Emoji, 'emoji')
+      .where(`emoji.serverid = :serverid`, { serverid })
+      .andWhere(`emoji.time > :time`, { time })
       .groupBy('emoji.emojiname')
-      .orderBy('count', 'ASC')
-      .getRawMany();
+      .orderBy('count', 'DESC')
+      .printSql();
+
+    if (reaction) {
+        query.andWhere('emoji.reaction = true');
+    }
+
+    this.logger.log(query);
+    return //await query.getRawMany();
   } */
-
-  // get reaction by user data
-  /*async reactionUserLookup(userid: string, serverid: string) {
-    return await this.databaseService.getRepository(Emoji)
-      .createQueryBuilder('Emoji')
-      .select('emoji.emojiname')
-      .addSelect('emoji.emojiid')
-      .addSelect('COUNT (*) AS count')
-      .where(`emoji.userid = ${userid}`)
-      .andWhere(`emoji.serverid = ${serverid}`)
-      .andWhere('emoji.reaction = true')
-      .groupBy('emoji.emojiname')
-      .orderBy('count', 'ASC')
-      .getRawMany();
-  }*/
-
-  // getEmojiCount
-  async constructEmojiCount() {
-
-  }
 }
 // TODO: Make reaction just a specific class of general.emoji
 // Optional reaction parameter. If parameter, then append reaction == true

@@ -6,7 +6,7 @@ import { ICommand, ICommandArgs, ICommandResult } from '../interfaces';
 import { Logger } from '../services/Logger';
 import { EmojiService } from '../services/EmojiService';
 import { EmojiDatabaseService } from '../services/EmojiDatabaseService';
-import * as Pagination from 'discord.js-pagination';
+import { PaginationService } from '../services/PaginationService';
 
 @Singleton
 @AutoWired
@@ -19,6 +19,7 @@ export class EmojiCommand implements ICommand {
   @Inject private logger: Logger;
   @Inject private emojiService: EmojiService;
   @Inject private emojiDatabaseService: EmojiDatabaseService;
+  @Inject private paginationService: PaginationService;
 
   async execute(cmdArgs: ICommandArgs): Promise<ICommandResult> {
     const { message } = cmdArgs;
@@ -78,6 +79,7 @@ export class EmojiCommand implements ICommand {
         }
     }
 
+    this.logger.log(result);
     let formatResult = await this.formatEmojiData(result, queryType);
 
     if (formatResult.length) {
@@ -90,7 +92,7 @@ export class EmojiCommand implements ICommand {
   }
 
   private paginateEmojiData(message, formattedResults) {
-    const embed = Pagination(message, formattedResults);
+    const embed = this.paginationService.embed(message, formattedResults, 25000);
   }
 
   private async formatEmojiData(emoji, queryType) {
@@ -98,37 +100,38 @@ export class EmojiCommand implements ICommand {
     let valueList = [];
     let value;
 
-    while (emoji.length) {
-        if (emoji.length === 1) {
-            valueList.push({
-               name: `${emoji[0].username || this.emojiService.getEmojiInstance(emoji[0].emojiname)}`,
-               value: `${emoji[0].count}`
-            });
-            emoji.pop();
-        } else if (emoji.length === 2) {
-            valueList.push({
-                name: `${emoji[0].username || this.emojiService.getEmojiInstance(emoji[0].emojiname)}: ${emoji[0].count}`,
-                value: `${emoji[1].username || this.emojiService.getEmojiInstance(emoji[1].emojiname)}: ${emoji[1].count}`,
-                inline: true
-            });
-            emoji.splice(0, 2);
-        } else {
-            if (emoji.length === 3) {
-                value = `${emoji[2].username || this.emojiService.getEmojiInstance(emoji[2].emojiname)}: ${emoji[2].count}`;
-            } else {
-                value = `${emoji[2].username || this.emojiService.getEmojiInstance(emoji[2].emojiname)}: \
-${emoji[2].count} || ${emoji[3].username || this.emojiService.getEmojiInstance(emoji[3].emojiname)}: \
+    emoji = emoji.filter((e) => this.emojiService.getEmoji(e.emojiname));
+
+    while (emoji.length > 3) {
+      value = `${emoji[2].username || this.emojiService.getEmoji(emoji[2].emojiname)}: \
+${emoji[2].count} || ${emoji[3].username || this.emojiService.getEmoji(emoji[3].emojiname)}: \
 ${emoji[3].count}`;
-            }
-            valueList.push({
-                name: `${emoji[0].username || this.emojiService.getEmojiInstance(emoji[0].emojiname)}: \
-${emoji[0].count} || ${emoji[1].username || this.emojiService.getEmojiInstance(emoji[1].emojiname)}: \
+      valueList.push({
+          name: `${emoji[0].username || this.emojiService.getEmoji(emoji[0].emojiname)}: \
+${emoji[0].count} || ${emoji[1].username || this.emojiService.getEmoji(emoji[1].emojiname)}: \
 ${emoji[1].count}`,
-                value,
-                inline: true
-            });
-        }
-        emoji.splice(0, 4);
+          value,
+          inline: true
+      });
+
+      emoji.splice(0, 4);
+    }
+
+    if (emoji.length === 1) {
+        valueList.push({
+           name: `${emoji[0].username || this.emojiService.getEmoji(emoji[0].emojiname)}`,
+           value: `${emoji[0].count}`
+        });
+        emoji.pop();
+    } else if (emoji.length === 2) {
+        valueList.push({
+            name: `${emoji[0].username || this.emojiService.getEmoji(emoji[0].emojiname)}: ${emoji[0].count}`,
+            value: `${emoji[1].username || this.emojiService.getEmoji(emoji[1].emojiname)}: ${emoji[1].count}`,
+            inline: true
+        });
+        emoji.splice(0, 2);
+    } else if (emoji.length === 3) {
+            value = `${emoji[2].username || this.emojiService.getEmoji(emoji[2].emojiname)}: ${emoji[2].count}`;
     }
 
     let paginatedData = [];
